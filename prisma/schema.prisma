@@ -12,18 +12,34 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  ADMIN
+  CLIENT
+  PARTNER
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
 model User {
-  id            String    @id
+  id            String     @id
   name          String
   email         String
   emailVerified Boolean
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
-  role          String?
-  status        String?
+  role          Role       @default(CLIENT)
+  status        UserStatus @default(PENDING)
+  
+  // Roadmap Specific Fields
   companyId     String?
-  company       Company?  @relation(fields: [companyId], references: [id])
+  company       Company?   @relation(fields: [companyId], references: [id])
+  serviceAreas  String?    // Specific to Partners
+
   sessions      Session[]
   accounts      Account[]
 
