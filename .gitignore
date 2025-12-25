@@ -46,3 +46,4 @@ next-env.d.ts
 !.agent/*.md
 !.agent/*.csv
 !.agent/*.pdf
+/lib/generated/prisma
