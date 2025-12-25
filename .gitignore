@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ignore everything in .agent
+.agent/
+# But allow me to see these specific files
+!.agent/*.md
+!.agent/*.csv
+!.agent/*.pdf
