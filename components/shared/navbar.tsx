@@ -21,8 +21,8 @@ export function Navbar() {
                 {/* Right Actions Section */}
                 <div className="flex items-center gap-4">
                     <Button variant="default" asChild>
-                        <Link href="/login">
-                            Login
+                        <Link href="/signup">
+                            Sign Up
                         </Link>
                     </Button>
                     <Button variant="accent" asChild>
