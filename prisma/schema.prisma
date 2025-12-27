@@ -38,7 +38,7 @@ model User {
   // Roadmap Specific Fields
   companyId     String?
   company       Company?   @relation(fields: [companyId], references: [id])
-  serviceAreas  String?    // Specific to Partners
+  serviceState  String?    // Specific to Partners
 
   sessions      Session[]
   accounts      Account[]

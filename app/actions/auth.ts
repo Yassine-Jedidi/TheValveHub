@@ -4,7 +4,7 @@ import { z } from "zod";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth"; // Server-side auth
 import prisma from "@/lib/prisma";
-import { clientSignUpSchema } from "@/lib/validations/auth";
+import { clientSignUpSchema, partnerSignUpSchema } from "@/lib/validations/auth";
 
 export async function signUpClient(formData: z.infer<typeof clientSignUpSchema>) {
     try {
@@ -48,8 +48,61 @@ export async function signUpClient(formData: z.infer<typeof clientSignUpSchema>)
             where: { email: validatedFields.email },
             data: {
                 role: "CLIENT",
-                companyId: company.id,
+                company: { connect: { id: company.id } },
                 status: "PENDING"
+            }
+        });
+
+        return { success: true };
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return { error: error.issues[0].message };
+        }
+        if (error instanceof Error) {
+            return { error: error.message }; 
+        }
+        return { error: "An unexpected error occurred" };
+    }
+}
+
+export async function signUpPartner(formData: z.infer<typeof partnerSignUpSchema>) {
+    try {
+        const validatedFields = partnerSignUpSchema.parse(formData);
+
+        const existingUser = await prisma.user.findUnique({
+            where: { email: validatedFields.email }
+        });
+
+        if (existingUser) {
+            return { error: "User with this email already exists" };
+        }
+
+        const company = await prisma.company.create({
+            data: {
+                id: crypto.randomUUID(),
+                name: validatedFields.companyName,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }
+        });
+
+        await auth.api.signUpEmail({
+            body: {
+                email: validatedFields.email,
+                password: validatedFields.password,
+                name: validatedFields.name,
+            },
+            headers: await headers() 
+        });
+
+        await prisma.user.update({
+            where: { email: validatedFields.email },
+            data: {
+                role: "PARTNER",
+                company: { connect: { id: company.id } },
+                status: "PENDING",
+                serviceState: validatedFields.serviceState,
             }
         });
 
